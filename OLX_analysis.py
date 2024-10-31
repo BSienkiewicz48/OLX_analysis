@@ -5,6 +5,25 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 import re
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
+
+# Ustawienia strony
+st.set_page_config(
+    page_title="OLX Najkorzystniejsze Oferty",
+    page_icon="💰",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+st.title("💰 Wyszukiwarka Najkorzystniejszych Ofert na OLX")
+st.markdown("""
+Aplikacja **OLX Najkorzystniejsze Oferty** umożliwia analizę i porównanie ofert dostępnych na portalu OLX pod kątem stosunku jakości do ceny. Dzięki naszej aplikacji możesz szybko znaleźć najlepsze oferty w interesujących Cię segmentach rynku.
+""")
+
+
 
 #Poniżej fragment przygotowujący dane:
 
@@ -147,4 +166,70 @@ print(f'Liczba usuniętych outlierów: {number_of_outliers}')
 print(f'Liczba usuniętych wierszy poniżej 10% mediany: {number_below_threshold}')
 print(f'Łączna liczba usuniętych wierszy: {total_removed}')
 
+# Przypisuję klaster na podstawie kolumny 'Cena'
+prices = filtered_data[['Cena']].copy()
+kmeans = KMeans(n_clusters=3, random_state=0)
+filtered_data['Segment'] = kmeans.fit_predict(prices)
 
+# Nazwanie segmentów na podstawie centroidów
+centroids = kmeans.cluster_centers_
+segment_labels = ['niski', 'średni', 'wysoki']
+sorted_segments = sorted(range(3), key=lambda x: centroids[x][0])
+
+# Mapowanie klastrów do nazw segmentów
+filtered_data['Segment'] = filtered_data['Segment'].map({sorted_segments[i]: segment_labels[i] for i in range(3)})
+
+
+# Obliczanie najważniejszych wartości dla każdego segmentu
+summary_stats = filtered_data.groupby('Segment')['Cena'].agg(['mean', 'median', 'min', 'max']).reset_index()
+
+# Ustawienie rozmiaru wykresu
+plt.figure(figsize=(12, 8))
+
+# Tworzenie violin plot
+sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
+
+# Tytuł i etykiety
+plt.title('Rozkład cen w segmentach (niski, średni, wysoki)')
+plt.xlabel('Segment')
+plt.ylabel('Cena')
+
+# Wyświetlenie najważniejszych statystyk pod wykresem
+plt.figtext(0.5, -0.1, 
+            '\n'.join([f"{row['Segment'].capitalize()} segment: Średnia = {row['mean']:.2f}, Mediana = {row['median']:.2f}, Min = {row['min']}, Max = {row['max']}" 
+                      for _, row in summary_stats.iterrows()]),
+            ha="center", fontsize=10)
+
+
+
+
+# Wyświetlanie statystyk
+st.header("📊 Statystyki Analizy")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Liczba ogłoszeń", total_observations)
+col2.metric("Usunięte outliery", number_of_outliers)
+col3.metric("Usunięte wiersze <10% mediany", number_below_threshold)
+col4.metric("Łącznie usuniętych", total_removed)
+
+# Tworzenie wykresu
+st.header("📈 Rozkład Cen w Segmentach")
+plt.figure(figsize=(12, 8))
+sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
+
+# Tytuł i etykiety
+plt.title('Rozkład cen w segmentach (niski, średni, wysoki)', fontsize=16)
+plt.xlabel('Segment', fontsize=14)
+plt.ylabel('Cena (PLN)', fontsize=14)
+
+# Wyświetlenie najważniejszych statystyk pod wykresem
+stat_text = '\n'.join([
+    f"**{row['Segment'].capitalize()} segment:** Średnia = {row['mean']:.2f} PLN, Mediana = {row['median']:.2f} PLN, Min = {row['min']} PLN, Max = {row['max']} PLN"
+    for _, row in summary_stats.iterrows()
+])
+plt.figtext(0.5, -0.1, stat_text, ha="center", fontsize=12, bbox={"facecolor":"orange", "alpha":0.5, "pad":5})
+
+st.pyplot(plt)
+
+
+# Dodatkowe informacje lub funkcjonalności możesz dodać poniżej
+st.footer("© 2024 OLX Najkorzystniejsze Oferty")
