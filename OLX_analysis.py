@@ -27,7 +27,7 @@ Aplikacja **OLX Najkorzystniejsze Oferty** umożliwia analizę i porównanie ofe
 user_input = st.text_input("Wprowadź link do strony OLX:")
 
 if not user_input:
-    st.warning("Proszę wprowadzić URL.")
+    st.warning("Proszę wprowadzić link do wyniku wyszukiwania olx, upewnij się że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami")
     st.stop()
 
 # Sprawdź, czy URL jest z domeny OLX
@@ -220,7 +220,9 @@ plt.figtext(0.5, -0.1,
 
 
 
-
+#
+#Wyświetlanie analizy
+#
 # Wyświetlanie statystyk
 st.header("📊 Statystyki Analizy")
 col1, col2, col3, col4 = st.columns(4)
@@ -229,21 +231,27 @@ col2.metric("Usunięte outliery", number_of_outliers)
 col3.metric("Usunięte wiersze <10% mediany", number_below_threshold)
 col4.metric("Łącznie usuniętych", total_removed)
 
-# Tworzenie wykresu
+# Nagłówek sekcji wykresu
 st.header("📈 Rozkład Cen w Segmentach")
+
+# Tworzenie wykresu
 plt.figure(figsize=(12, 8))
 sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
-# Tytuł i etykiety
+# Tytuł i etykiety wykresu
 plt.title('Rozkład cen w segmentach (niski, średni, wysoki)', fontsize=16)
 plt.xlabel('Segment', fontsize=14)
 plt.ylabel('Cena (PLN)', fontsize=14)
 
-# Wyświetlenie najważniejszych statystyk pod wykresem
-stat_text = '\n'.join([
-    f"**{row['Segment'].capitalize()} segment:** Średnia = {row['mean']:.2f} PLN, Mediana = {row['median']:.2f} PLN, Min = {row['min']} PLN, Max = {row['max']} PLN"
-    for _, row in summary_stats.iterrows()
-])
-plt.figtext(0.5, -0.1, stat_text, ha="center", fontsize=12, bbox={"facecolor":"orange", "alpha":0.5, "pad":5})
-
+# Wyświetlenie wykresu
 st.pyplot(plt)
+
+# Wyświetlenie tabeli ze statystykami w Streamlit
+st.write("### Statystyki dla poszczególnych segmentów")
+st.table(summary_stats.rename(columns={
+    'Segment': 'Segment',
+    'mean': 'Średnia (PLN)',
+    'median': 'Mediana (PLN)',
+    'min': 'Min (PLN)',
+    'max': 'Max (PLN)'
+}))
