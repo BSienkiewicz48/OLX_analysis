@@ -246,12 +246,55 @@ plt.ylabel('Cena (PLN)', fontsize=14)
 # Wyświetlenie wykresu
 st.pyplot(plt)
 
-# Wyświetlenie tabeli ze statystykami w Streamlit
-st.write("### Statystyki dla poszczególnych segmentów")
-st.table(summary_stats.rename(columns={
+# Przygotowanie danych do tabeli
+styled_summary = summary_stats.rename(columns={
     'Segment': 'Segment',
     'mean': 'Średnia (PLN)',
     'median': 'Mediana (PLN)',
     'min': 'Min (PLN)',
     'max': 'Max (PLN)'
-}))
+})
+
+# Stylizacja tabeli za pomocą HTML i CSS
+st.write("### Statystyki dla poszczególnych segmentów")
+table_html = styled_summary.to_html(index=False, classes="styled-table")
+
+st.markdown(
+    """
+    <style>
+    .styled-table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 16px;
+        min-width: 400px;
+        width: 100%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    .styled-table thead tr {
+        background-color: #009879;
+        color: #ffffff;
+        text-align: left;
+    }
+    .styled-table th, .styled-table td {
+        padding: 12px 15px;
+    }
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+    }
+    .styled-table tbody tr:hover {
+        background-color: #d1e7dd;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+
+# Wyświetlenie tabeli w Streamlit
+st.markdown(table_html, unsafe_allow_html=True)
