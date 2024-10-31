@@ -26,6 +26,10 @@ Aplikacja **OLX Najkorzystniejsze Oferty** umożliwia analizę i porównanie ofe
 # Pobierz URL od użytkownika
 user_input = st.text_input("Wprowadź link do strony OLX:")
 
+if not user_input:
+    st.warning("Proszę wprowadzić URL.")
+    st.stop()
+
 # Sprawdź, czy URL jest z domeny OLX
 if user_input:
     parsed_url = urlparse(user_input)
@@ -37,9 +41,6 @@ if user_input:
         # Rozdziel URL na części
         url_parts = list(urlparse(base_url))
         query = parse_qs(url_parts[4])
-
-        # Wyświetl rozparsowane zapytanie jako przykładową akcję
-        st.write("Rozparsowane zapytanie:", query)
     else:
         st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
 
