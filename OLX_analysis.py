@@ -206,22 +206,18 @@ plt.figure(figsize=(12, 8))
 # Tworzenie violin plot
 sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
-# Tytuł i etykiety
-plt.title('Im szerszy wykres tym więcej ogłoszeń znajduje się w danej cenie')
-plt.xlabel('Segment')
-plt.ylabel('Cena')
-
-# Wyświetlenie najważniejszych statystyk pod wykresem
-plt.figtext(0.5, -0.1, 
-            '\n'.join([f"{row['Segment'].capitalize()} segment: Średnia = {row['mean']:.2f}, Mediana = {row['median']:.2f}, Min = {row['min']}, Max = {row['max']}" 
-                      for _, row in summary_stats.iterrows()]),
-            ha="center", fontsize=10)
-
-
-
 #
 #Wyświetlanie analizy
 #
+
+
+st.header("📊 Statystyki Analizy")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Liczba ogłoszeń", total_observations)
+col2.metric("Usunięte outliery", number_of_outliers)
+col3.metric("Usunięte wiersze <10% mediany", number_below_threshold)
+col4.metric("Łącznie usuniętych", total_removed)
+
 
 # Nagłówek sekcji wykresu
 st.header("📈 Rozkład Cen w Segmentach")
@@ -231,7 +227,7 @@ plt.figure(figsize=(12, 8))
 sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
 # Tytuł i etykiety wykresu
-plt.title('Rozkład cen w segmentach (niski, średni, wysoki)', fontsize=16)
+plt.title('Im szerszy wykres tym więcej ogłoszeń znajduje się w danej cenie)', fontsize=16)
 plt.xlabel('Segment', fontsize=14)
 plt.ylabel('Cena (PLN)', fontsize=14)
 
