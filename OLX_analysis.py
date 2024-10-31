@@ -246,7 +246,3 @@ stat_text = '\n'.join([
 plt.figtext(0.5, -0.1, stat_text, ha="center", fontsize=12, bbox={"facecolor":"orange", "alpha":0.5, "pad":5})
 
 st.pyplot(plt)
-
-
-# Dodatkowe informacje lub funkcjonalności możesz dodać poniżej
-st.footer("© 2024 OLX Najkorzystniejsze Oferty")
