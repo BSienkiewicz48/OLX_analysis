@@ -207,7 +207,7 @@ plt.figure(figsize=(12, 8))
 sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
 # Tytuł i etykiety
-plt.title('Rozkład cen w segmentach (niski, średni, wysoki)')
+plt.title('Im szerszy wykres tym więcej ogłoszeń znajdje się w danej cenie')
 plt.xlabel('Segment')
 plt.ylabel('Cena')
 
