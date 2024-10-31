@@ -197,7 +197,7 @@ summary_stats = filtered_data.groupby('Segment')['Cena'].agg(['mean', 'median', 
 #Wyświetlanie analizy
 #
 
-st.header("📊 Statystyki Analizy")
+st.header("📊 Statystyki walidacji")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Liczba ogłoszeń", total_observations)
 col2.metric("Usunięte outliery", number_of_outliers)
