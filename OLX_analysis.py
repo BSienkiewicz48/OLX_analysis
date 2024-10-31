@@ -177,12 +177,6 @@ filtered_data = filtered_data[filtered_data['Cena'] >= min_threshold]
 # Oblicz całkowitą liczbę usuniętych wierszy (outliery + poniżej 10% mediany)
 total_removed = number_of_outliers + number_below_threshold
 
-# Wyświetlanie liczby obserwacji i usuniętych wierszy
-print(f'Liczba ogłoszeń branych pod uwagę przy analizie: {total_observations}')
-print(f'Liczba usuniętych outlierów: {number_of_outliers}')
-print(f'Liczba usuniętych wierszy poniżej 10% mediany: {number_below_threshold}')
-print(f'Łączna liczba usuniętych wierszy: {total_removed}')
-
 # Przypisuję klaster na podstawie kolumny 'Cena'
 prices = filtered_data[['Cena']].copy()
 kmeans = KMeans(n_clusters=3, random_state=0)
@@ -196,20 +190,12 @@ sorted_segments = sorted(range(3), key=lambda x: centroids[x][0])
 # Mapowanie klastrów do nazw segmentów
 filtered_data['Segment'] = filtered_data['Segment'].map({sorted_segments[i]: segment_labels[i] for i in range(3)})
 
-
 # Obliczanie najważniejszych wartości dla każdego segmentu
 summary_stats = filtered_data.groupby('Segment')['Cena'].agg(['mean', 'median', 'min', 'max']).reset_index()
-
-# Ustawienie rozmiaru wykresu
-plt.figure(figsize=(12, 8))
-
-# Tworzenie violin plot
-sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
 #
 #Wyświetlanie analizy
 #
-
 
 st.header("📊 Statystyki Analizy")
 col1, col2, col3, col4 = st.columns(4)
@@ -223,7 +209,7 @@ col4.metric("Łącznie usuniętych", total_removed)
 st.header("📈 Rozkład Cen w Segmentach")
 
 # Tworzenie wykresu
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 10))
 sns.violinplot(data=filtered_data, x='Segment', y='Cena', palette="muted", inner="box")
 
 # Tytuł i etykiety wykresu
