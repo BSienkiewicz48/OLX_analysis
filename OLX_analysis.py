@@ -223,13 +223,6 @@ plt.figtext(0.5, -0.1,
 #
 #Wyświetlanie analizy
 #
-# Wyświetlanie statystyk
-st.header("📊 Statystyki Analizy")
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Liczba ogłoszeń", total_observations)
-col2.metric("Usunięte outliery", number_of_outliers)
-col3.metric("Usunięte wiersze <10% mediany", number_below_threshold)
-col4.metric("Łącznie usuniętych", total_removed)
 
 # Nagłówek sekcji wykresu
 st.header("📈 Rozkład Cen w Segmentach")
@@ -246,14 +239,15 @@ plt.ylabel('Cena (PLN)', fontsize=14)
 # Wyświetlenie wykresu
 st.pyplot(plt)
 
-# Przygotowanie danych do tabeli
+# Przygotowanie danych do tabeli i zaokrąglenie do 2 miejsc po przecinku
 styled_summary = summary_stats.rename(columns={
     'Segment': 'Segment',
     'mean': 'Średnia (PLN)',
     'median': 'Mediana (PLN)',
     'min': 'Min (PLN)',
     'max': 'Max (PLN)'
-})
+}).copy()
+styled_summary[['Średnia (PLN)', 'Mediana (PLN)', 'Min (PLN)', 'Max (PLN)']] = styled_summary[['Średnia (PLN)', 'Mediana (PLN)', 'Min (PLN)', 'Max (PLN)']].applymap(lambda x: f"{x:.2f}")
 
 # Stylizacja tabeli za pomocą HTML i CSS
 st.write("### Statystyki dla poszczególnych segmentów")
@@ -270,14 +264,16 @@ st.markdown(
         min-width: 400px;
         width: 100%;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
     }
     .styled-table thead tr {
         background-color: #009879;
         color: #ffffff;
-        text-align: left;
+        text-align: center;
     }
     .styled-table th, .styled-table td {
         padding: 12px 15px;
+        text-align: center;
     }
     .styled-table tbody tr {
         border-bottom: 1px solid #dddddd;
