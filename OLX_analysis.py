@@ -23,12 +23,29 @@ st.markdown("""
 Aplikacja **OLX Najkorzystniejsze Oferty** umożliwia analizę i porównanie ofert dostępnych na portalu OLX pod kątem stosunku jakości do ceny. Dzięki naszej aplikacji możesz szybko znaleźć najlepsze oferty w interesujących Cię segmentach rynku.
 """)
 
+# Pobierz URL od użytkownika
+user_input = st.text_input("Wprowadź link do strony OLX:")
 
+# Sprawdź, czy URL jest z domeny OLX
+if user_input:
+    parsed_url = urlparse(user_input)
+    if parsed_url.netloc.endswith("olx.pl"):
+        # Zastąp base_url wartością z input boxa
+        base_url = user_input
+        st.write("Podany URL jest prawidłowy dla domeny OLX.")
+
+        # Rozdziel URL na części
+        url_parts = list(urlparse(base_url))
+        query = parse_qs(url_parts[4])
+
+        # Wyświetl rozparsowane zapytanie jako przykładową akcję
+        st.write("Rozparsowane zapytanie:", query)
+    else:
+        st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
 
 #Poniżej fragment przygotowujący dane:
 
 # URL strony, którą chcesz zczytać
-base_url = "https://www.olx.pl/elektronika/gry-konsole/konsole/q-playstation-5/?search%5Bfilter_enum_state%5D%5B0%5D=used&search%5Bfilter_enum_version%5D%5B0%5D=playstation5"
 sort_fragment = "created_at:desc"
 
 # Rozdziel URL na części
