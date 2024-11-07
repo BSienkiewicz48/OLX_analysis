@@ -362,4 +362,4 @@ filteredV2_data_niski = filteredV2_data_niski[filteredV2_data_niski['tresc_oglos
 data_to_show_st = filteredV2_data_niski.drop(columns=['Segment', 'Percentyl'])
 
 st.dataframe(data_to_show_st)
-st.markdown(odpowiedzi_word)
+st.markdown("Usunięto ogłoszenia z "+odpowiedzi_word)
