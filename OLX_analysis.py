@@ -49,6 +49,9 @@ if user_input:
     else:
         st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
 
+
+st.button("Kliknij, aby kontynuować") and st.stop()
+
 #Poniżej fragment przygotowujący dane:
 
 # URL strony, którą chcesz zczytać
