@@ -361,5 +361,6 @@ filteredV2_data_niski.loc[:, 'tresc_ogloszenia'] = filteredV2_data_niski['Link']
 filteredV2_data_niski = filteredV2_data_niski[filteredV2_data_niski['tresc_ogloszenia'].map(lambda d: len(d) > 0)]
 data_to_show_st = filteredV2_data_niski.drop(columns=['Segment', 'Percentyl'])
 
-st.dataframe(data_to_show_st)
+if st.button("Pokaż tabelę"):
+    st.dataframe(data_to_show_st, use_container_width=True)
 st.markdown("Usunięto ogłoszenia z "+odpowiedzi_word)
