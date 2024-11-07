@@ -9,6 +9,12 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
+from collections import Counter
+import openai
+
+
+api_key = st.secrets["api_key"]
+
 
 # Ustawienia strony
 st.set_page_config(
@@ -125,7 +131,6 @@ df = df.dropna(subset=['Cena']) # a wiersze dropnięte
 df['Cena'] = df['Cena'].astype(float)
 df['Do negocjacji'] = df['Do negocjacji'].astype(bool)
 df = df.drop_duplicates(subset='Tekst', keep='first')
-
 #Wyciąganie słów wyszukiwania
 # Funkcja do wyciągania słów z wyszukiwanego tekstu
 def extract_search_terms(url_parts):
@@ -275,3 +280,85 @@ st.markdown(
 
 # Wyświetlenie tabeli w Streamlit
 st.markdown(table_html, unsafe_allow_html=True)
+
+
+
+
+client = openai.OpenAI(api_key=api_key)
+
+# Wyszukiwany elemnt
+search_terms_string = ' '.join(search_terms)
+
+# Filtrować dane, aby uzyskać tylko te, w których kolumna 'Segment' ma wartość 'niski'
+filtered_data_niski = filtered_data[filtered_data['Segment'] == 'niski'].copy()
+
+# Dodanie kolumny z grupami opartymi na 20- centylach
+filtered_data_niski['Percentyl'] = pd.qcut(filtered_data_niski['Cena'], q=5, labels=False)
+
+# Funkcja do zliczania słów w grupie
+def count_words_in_group(group):
+    word_counter = Counter()
+    for text in group['Tekst']:
+        words = re.findall(r'\b\w+\b', text.lower())
+        words = [word for word in words if len(word) > 1]  # Filtruj słowa krótsze niż 2 litery
+        word_counter.update(words)
+    return word_counter
+
+# Zliczanie słów dla każdej grupy i zapisywanie wyników do DataFrame
+group_word_counts = {}
+for group_number in range(5):
+    group = filtered_data_niski[filtered_data_niski['Percentyl'] == group_number]
+    word_counter = count_words_in_group(group)
+    common_words = word_counter.most_common(3)  # Najczęściej występujące słowa
+    group_word_counts[group_number] = common_words
+
+# Tworzenie DataFrame z wynikami zliczania słów
+group_word_counts_df = pd.DataFrame.from_dict(group_word_counts, orient='index')
+group_word_counts_df.columns = ['Word1', 'Word2', 'Word3']
+
+# Usuń liczby wystąpień, pozostawiając same słowa
+group_word_counts_df['Word1'] = group_word_counts_df['Word1'].apply(lambda x: x[0])
+group_word_counts_df['Word2'] = group_word_counts_df['Word2'].apply(lambda x: x[0])
+group_word_counts_df['Word3'] = group_word_counts_df['Word3'].apply(lambda x: x[0])
+
+# W dalszej części kodu: użycie klasyfikacji
+response_word = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "Ma to być prosta klasyfikacja, tylko jedno słowo niepasujące do reszty."},
+        {"role": "user", "content": (
+            f"Sprawdź które słowo z tabeli {group_word_counts_df} nie pasuje do wyszukiwanej frazy: "
+            f"{search_terms_string}. Napisz tylko jedno słowo z tabeli - to które nie pasuje. "
+            f"Słowa jak gwarancja, czy stan lub model, wersja, mogą wystąpić w wyszukiwanej frazie. "
+            f"Słowo które może zawierać się w zestawie do {search_terms_string} to go zostawiaj."
+        )}
+    ]
+)
+
+
+odpowiedzi_word = response_word.choices[0].message.content.strip()
+
+print(odpowiedzi_word)
+
+# Usuń wiersze, które zawierają słowo 'odpowiedzi_word' w kolumnie 'Tekst'
+filteredV2_data_niski = filtered_data_niski[~filtered_data_niski['Tekst'].str.contains(odpowiedzi_word, case=False, na=False)]
+
+import requests
+from bs4 import BeautifulSoup
+
+# Funkcja do scrapowania danych z podanego linku
+def scrape_data(link):
+    response = requests.get(link)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        elements = soup.find_all(class_='css-1o924a9')
+        return [element.get_text(strip=True) for element in elements]
+    else:
+        return []
+
+# Przechodzenie przez każdą wartość w kolumnie 'Link' i scrapowanie danych
+filteredV2_data_niski.loc[:, 'tresc_ogloszenia'] = filteredV2_data_niski['Link'].apply(scrape_data)
+filteredV2_data_niski = filteredV2_data_niski[filteredV2_data_niski['tresc_ogloszenia'].map(lambda d: len(d) > 0)]
+data_to_show_st = filteredV2_data_niski.drop(columns=['Segment', 'Percentyl'])
+
+st.dataframe(data_to_show_st)
