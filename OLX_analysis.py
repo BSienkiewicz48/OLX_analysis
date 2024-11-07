@@ -50,7 +50,9 @@ if user_input:
         st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
 
 
-st.button("Kliknij, aby kontynuować") and st.stop()
+if not st.button("Kliknij, aby kontynuować"):
+    st.warning("Po wprowadzeniu linku kliknij przycisk powyżej, aby kontynuować.")
+    st.stop()
 
 #Poniżej fragment przygotowujący dane:
 
