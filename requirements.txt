@@ -7,4 +7,3 @@ scikit-learn
 seaborn
 streamlit
 openai
-collections
