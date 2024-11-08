@@ -293,40 +293,34 @@ st.markdown(table_html, unsafe_allow_html=True)
 
 
 
-# Filtrować dane, aby uzyskać tylko te, w których kolumna 'Segment' ma wartość 'niski'
+
+
+
+# Filtrowanie danych (przykładowo)
 filtered_data_niski = filtered_data[filtered_data['Segment'] == 'niski'].copy()
 
-# Dodanie kolumny z grupami opartymi na 20- centylach
-filtered_data_niski['Percentyl'] = pd.qcut(filtered_data_niski['Cena'], q=5, labels=False)
+# Zliczanie najczęściej występujących słów
+word_counter = Counter()
+for text in filtered_data_niski['Tekst']:
+    words = re.findall(r'\b\w+\b', text.lower())
+    words = [word for word in words if len(word) > 1]
+    word_counter.update(words)
 
-# Funkcja do zliczania słów w grupie
-def count_words_in_group(group):
-    word_counter = Counter()
-    for text in group['Tekst']:
-        words = re.findall(r'\b\w+\b', text.lower())
-        words = [word for word in words if len(word) > 1]  # Filtruj słowa krótsze niż 2 litery
-        word_counter.update(words)
-    return word_counter
+# Pobranie 20 najczęściej występujących słów
+common_words = [word for word, _ in word_counter.most_common(20)]
 
-# Zliczanie słów dla każdej grupy i zapisywanie wyników do DataFrame
-group_word_counts = {}
-for group_number in range(5):
-    group = filtered_data_niski[filtered_data_niski['Percentyl'] == group_number]
-    word_counter = count_words_in_group(group)
-    common_words = word_counter.most_common(3)  # Najczęściej występujące słowa
-    group_word_counts[group_number] = common_words
+# Streamlit aplikacja
+st.title("Filtracja danych na podstawie najczęściej występujących słów")
+filtered_niski_recznie = filtered_data_niski.copy()
 
-# Tworzenie DataFrame z wynikami zliczania słów
-group_word_counts_df = pd.DataFrame.from_dict(group_word_counts, orient='index')
-group_word_counts_df.columns = ['Word1', 'Word2', 'Word3']
+for word in common_words:
+    if st.button(f"Usuń wiersze zawierające: {word}"):
+        filtered_niski_recznie = filtered_niski_recznie[~filtered_niski_recznie['Tekst'].str.contains(rf'\b{word}\b', case=False, na=False)]
+        st.write(f"Usunięto wiersze zawierające słowo: {word}")
 
-# Usuń liczby wystąpień, pozostawiając same słowa
-group_word_counts_df['Word1'] = group_word_counts_df['Word1'].apply(lambda x: x[0])
-group_word_counts_df['Word2'] = group_word_counts_df['Word2'].apply(lambda x: x[0])
-group_word_counts_df['Word3'] = group_word_counts_df['Word3'].apply(lambda x: x[0])
-
-
-
+# Wyświetlenie przefiltrowanego DataFrame
+st.write("Przefiltrowane dane:")
+st.dataframe(filtered_niski_recznie)
 
 
 
