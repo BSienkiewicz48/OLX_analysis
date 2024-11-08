@@ -155,7 +155,7 @@ def scrapuj_dane():
 if 'Links' not in st.session_state:
     st.session_state.Links = scrapuj_dane()
 
-Links = st.session_state.df
+Links = st.session_state.Links
 
 #Poniżej czyszczenie danych:
 # Usuń outliery z kolumny 'Cena'
