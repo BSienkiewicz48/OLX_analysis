@@ -18,14 +18,14 @@ api_key = st.secrets["api_key"]
 
 # Ustawienia strony
 st.set_page_config(
-    page_title="OLX Najkorzystniejsze Oferty",
+    page_title="OLX Analityka Ofert",
     page_icon="💰",
     initial_sidebar_state="expanded",
 )
 
-st.title("💰 Wyszukiwarka Najkorzystniejszych Ofert na OLX")
+st.title("💰 Analiza rozkładu cen dla ofert na olx")
 st.markdown("""
-Aplikacja **OLX Najkorzystniejsze Oferty** umożliwia analizę i porównanie ofert dostępnych na portalu OLX pod kątem stosunku jakości do ceny. Dzięki naszej aplikacji możesz szybko znaleźć najlepsze oferty w interesujących Cię segmentach rynku.
+Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kątem rozkładu cen. Dzięki aplikacji możesz szybko zorientować się w jakich cenach wystawiany jest dany przedmiot.
 """)
 
 # Pobierz URL od użytkownika
