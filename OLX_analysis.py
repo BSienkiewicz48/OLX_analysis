@@ -39,20 +39,20 @@ if not user_input:
 if user_input:
     parsed_url = urlparse(user_input)
     if parsed_url.netloc.endswith("olx.pl"):
-        # Zastąp base_url wartością z input boxa
-        base_url = user_input
-        st.write("Podany URL jest prawidłowy dla domeny OLX.")
+        if st.button("Kliknij, aby kontynuować"):
+            # Zastąp base_url wartością z input boxa
+            base_url = user_input
+            st.write("Podany URL jest prawidłowy dla domeny OLX.")
 
-        # Rozdziel URL na części
-        url_parts = list(urlparse(base_url))
-        query = parse_qs(url_parts[4])
+            # Rozdziel URL na części
+            url_parts = list(urlparse(base_url))
+            query = parse_qs(url_parts[4])
+        else:
+            st.warning("Po wprowadzeniu linku kliknij przycisk powyżej, aby kontynuować.")
+            st.stop()
     else:
         st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
-
-
-if not st.button("Kliknij, aby kontynuować"):
-    st.warning("Po wprowadzeniu linku kliknij przycisk powyżej, aby kontynuować.")
-    st.stop()
+        st.stop()
 
 #Poniżej fragment przygotowujący dane:
 
@@ -369,3 +369,7 @@ data_to_show_st = filteredV2_data_niski.drop(columns=['Segment', 'Percentyl'])
 if st.button("Pokaż tabelę"):
     st.dataframe(data_to_show_st, use_container_width=True)
 st.markdown("Usunięto ogłoszenia z "+odpowiedzi_word)
+
+
+
+
