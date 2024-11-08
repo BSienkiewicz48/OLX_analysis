@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.title("💰 Analiza rozkładu cen dla ofert na olx")
+st.title("💰 Analiza rozkładu cen dla ofert na portalu ogłoszeniowym OLX")
 st.markdown("""
 Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kątem rozkładu cen. Dzięki aplikacji możesz szybko zorientować się w jakich cenach wystawiany jest dany przedmiot.
 """)
