@@ -147,6 +147,8 @@ def scrapuj_dane():
         return terms
     search_terms = extract_search_terms(url_parts)
     df = df[df['Tekst'].apply(lambda x: all(word.lower() in x.lower() for word in search_terms))]
+    return df
+
 
 Links = scrapuj_dane()
 
