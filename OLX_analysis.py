@@ -71,84 +71,84 @@ url_parts[4] = urlencode(query, doseq=True)
 # Zbuduj pełny URL
 base_url = urlunparse(url_parts)
 
-# Zczytanie zawartości pierwszej strony
-response = requests.get(base_url)
-soup = BeautifulSoup(response.content, 'html.parser')
+def scrapuj_dane():
+    # Zczytanie zawartości pierwszej strony
+    response = requests.get(base_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-# Znalezienie liczby stron z ogłoszeniami
-total_pages_tag = soup.find_all('a', class_='css-1mi714g')
-if total_pages_tag:
-    total_pages = max([int(tag.get_text(strip=True)) for tag in total_pages_tag if tag.get_text(strip=True).isdigit()])
-    if total_pages > 15:
-        total_pages = 15
-else:
-    total_pages = 1
-
-# Zmienna przechowująca zawartość wszystkich stron
-combined_response = response.content
-
-# Pętla iterująca przez kolejne strony
-for page_number in range(2, total_pages + 1):
-    # Ustaw lub zaktualizuj parametr `page`
-    query["page"] = [str(page_number)]
-    
-    # Zakoduj ponownie zapytanie i zaktualizuj URL
-    url_parts[4] = urlencode(query, doseq=True)
-    page_url = urlunparse(url_parts)
-    
-    # Zczytaj zawartość bieżącej strony
-    response = requests.get(page_url)
-    if response.status_code == 200:
-        combined_response += response.content  # Dodaj zawartość do `combined_response`
+    # Znalezienie liczby stron z ogłoszeniami
+    total_pages_tag = soup.find_all('a', class_='css-1mi714g')
+    if total_pages_tag:
+        total_pages = max([int(tag.get_text(strip=True)) for tag in total_pages_tag if tag.get_text(strip=True).isdigit()])
+        if total_pages > 15:
+            total_pages = 15
     else:
-        print(f"Nie udało się pobrać strony {page_number}")
+        total_pages = 1
 
-# Tworzenie obiektu BeautifulSoup z połączonej zawartości
-soup = BeautifulSoup(combined_response, 'html.parser')
+    # Zmienna przechowująca zawartość wszystkich stron
+    combined_response = response.content
 
-# Znalezienie wszystkich rodziców z określoną klasą wspólną dla linku i ceny
-parents = soup.find_all('div', class_='css-u2ayx9')
-# Przekształcenie listy linków i cen w DataFrame
-link_data = []
-for parent in parents:
-    link = parent.find('a', class_='css-z3gu2d')
-    price_tag = parent.find('p', class_='css-13afqrm')
-    
-    # Sprawdzenie, czy link i cena istnieją
-    if link:
-        href = link.get('href')
-        text = link.get_text(strip=True)
-        price = price_tag.get_text(strip=True) if price_tag else 'Brak ceny'
+    # Pętla iterująca przez kolejne strony
+    for page_number in range(2, total_pages + 1):
+        # Ustaw lub zaktualizuj parametr `page`
+        query["page"] = [str(page_number)]
+        
+        # Zakoduj ponownie zapytanie i zaktualizuj URL
+        url_parts[4] = urlencode(query, doseq=True)
+        page_url = urlunparse(url_parts)
+        
+        # Zczytaj zawartość bieżącej strony
+        response = requests.get(page_url)
+        if response.status_code == 200:
+            combined_response += response.content  # Dodaj zawartość do `combined_response`
+        else:
+            print(f"Nie udało się pobrać strony {page_number}")
 
-        link_data.append({'Link': f"https://www.olx.pl{href}", 'Tekst': text, 'Cena': price})
+    # Tworzenie obiektu BeautifulSoup z połączonej zawartości
+    soup = BeautifulSoup(combined_response, 'html.parser')
 
-df = pd.DataFrame(link_data)
+    # Znalezienie wszystkich rodziców z określoną klasą wspólną dla linku i ceny
+    parents = soup.find_all('div', class_='css-u2ayx9')
+    # Przekształcenie listy linków i cen w DataFrame
+    link_data = []
+    for parent in parents:
+        link = parent.find('a', class_='css-z3gu2d')
+        price_tag = parent.find('p', class_='css-13afqrm')
+        
+        # Sprawdzenie, czy link i cena istnieją
+        if link:
+            href = link.get('href')
+            text = link.get_text(strip=True)
+            price = price_tag.get_text(strip=True) if price_tag else 'Brak ceny'
 
-df['Cena'] = df['Cena'].str.replace('zł', '').str.replace(' ', '')
-df['Do negocjacji'] = df['Cena'].str.contains('donegocjacji')
-df['Cena'] = df['Cena'].str.replace('donegocjacji', '')
-df['Cena'] = df['Cena'].str.replace(',', '.')
-df = df[df['Cena'] != "Zamienię"]
-df['Cena'] = pd.to_numeric(df['Cena'], errors='coerce') #wartości które nie mogą być float będą usunięte 
-df = df.dropna(subset=['Cena']) # a wiersze dropnięte
-df['Cena'] = df['Cena'].astype(float)
-df['Do negocjacji'] = df['Do negocjacji'].astype(bool)
-df = df.drop_duplicates(subset='Tekst', keep='first')
-#Wyciąganie słów wyszukiwania
-# Funkcja do wyciągania słów z wyszukiwanego tekstu
-def extract_search_terms(url_parts):
-    terms = []
-    for part in url_parts:
-        match = re.search(r'q-([a-zA-Z0-9\-]+)', part)
-        if match:
-            # Zamiana "-" na spacje, rozdzielanie i dodanie do listy
-            terms.extend(match.group(1).replace('-', ' ').split())
-    return terms
-search_terms = extract_search_terms(url_parts)
-df = df[df['Tekst'].apply(lambda x: all(word.lower() in x.lower() for word in search_terms))]
+            link_data.append({'Link': f"https://www.olx.pl{href}", 'Tekst': text, 'Cena': price})
 
-#Powyżej fragment przygotowujący dane
-Links = df
+    df = pd.DataFrame(link_data)
+
+    df['Cena'] = df['Cena'].str.replace('zł', '').str.replace(' ', '')
+    df['Do negocjacji'] = df['Cena'].str.contains('donegocjacji')
+    df['Cena'] = df['Cena'].str.replace('donegocjacji', '')
+    df['Cena'] = df['Cena'].str.replace(',', '.')
+    df = df[df['Cena'] != "Zamienię"]
+    df['Cena'] = pd.to_numeric(df['Cena'], errors='coerce') #wartości które nie mogą być float będą usunięte 
+    df = df.dropna(subset=['Cena']) # a wiersze dropnięte
+    df['Cena'] = df['Cena'].astype(float)
+    df['Do negocjacji'] = df['Do negocjacji'].astype(bool)
+    df = df.drop_duplicates(subset='Tekst', keep='first')
+    #Wyciąganie słów wyszukiwania
+    # Funkcja do wyciągania słów z wyszukiwanego tekstu
+    def extract_search_terms(url_parts):
+        terms = []
+        for part in url_parts:
+            match = re.search(r'q-([a-zA-Z0-9\-]+)', part)
+            if match:
+                # Zamiana "-" na spacje, rozdzielanie i dodanie do listy
+                terms.extend(match.group(1).replace('-', ' ').split())
+        return terms
+    search_terms = extract_search_terms(url_parts)
+    df = df[df['Tekst'].apply(lambda x: all(word.lower() in x.lower() for word in search_terms))]
+
+Links = scrapuj_dane()
 
 
 #Poniżej czyszczenie danych:
