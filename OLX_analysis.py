@@ -289,10 +289,9 @@ st.markdown(table_html, unsafe_allow_html=True)
 
 
 
-client = openai.OpenAI(api_key=api_key)
 
-# Wyszukiwany elemnt
-search_terms_string = ' '.join(search_terms)
+
+
 
 # Filtrować dane, aby uzyskać tylko te, w których kolumna 'Segment' ma wartość 'niski'
 filtered_data_niski = filtered_data[filtered_data['Segment'] == 'niski'].copy()
@@ -326,49 +325,10 @@ group_word_counts_df['Word1'] = group_word_counts_df['Word1'].apply(lambda x: x[
 group_word_counts_df['Word2'] = group_word_counts_df['Word2'].apply(lambda x: x[0])
 group_word_counts_df['Word3'] = group_word_counts_df['Word3'].apply(lambda x: x[0])
 
-# W dalszej części kodu: użycie klasyfikacji
-response_word = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": "Ma to być prosta klasyfikacja, tylko jedno słowo niepasujące do reszty."},
-        {"role": "user", "content": (
-            f"Sprawdź które słowo z tabeli {group_word_counts_df} nie pasuje do wyszukiwanej frazy: "
-            f"{search_terms_string}. Napisz tylko jedno słowo z tabeli - to które nie pasuje. "
-            f"Słowa jak gwarancja, czy stan lub model, wersja, mogą wystąpić w wyszukiwanej frazie. "
-            f"Słowo które może zawierać się w zestawie do {search_terms_string} to go zostawiaj."
-        )}
-    ]
-)
 
 
-odpowiedzi_word = response_word.choices[0].message.content.strip()
 
-print(odpowiedzi_word)
 
-# Usuń wiersze, które zawierają słowo 'odpowiedzi_word' w kolumnie 'Tekst'
-filteredV2_data_niski = filtered_data_niski[~filtered_data_niski['Tekst'].str.contains(odpowiedzi_word, case=False, na=False)]
-
-import requests
-from bs4 import BeautifulSoup
-
-# Funkcja do scrapowania danych z podanego linku
-def scrape_data(link):
-    response = requests.get(link)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        elements = soup.find_all(class_='css-1o924a9')
-        return [element.get_text(strip=True) for element in elements]
-    else:
-        return []
-
-# Przechodzenie przez każdą wartość w kolumnie 'Link' i scrapowanie danych
-filteredV2_data_niski.loc[:, 'tresc_ogloszenia'] = filteredV2_data_niski['Link'].apply(scrape_data)
-filteredV2_data_niski = filteredV2_data_niski[filteredV2_data_niski['tresc_ogloszenia'].map(lambda d: len(d) > 0)]
-data_to_show_st = filteredV2_data_niski.drop(columns=['Segment', 'Percentyl'])
-
-if st.button("Pokaż tabelę"):
-    st.dataframe(data_to_show_st, use_container_width=True)
-st.markdown("Usunięto ogłoszenia z "+odpowiedzi_word)
 
 
 
