@@ -294,31 +294,7 @@ st.markdown(table_html, unsafe_allow_html=True)
 
 
 
-# Filtrowanie danych (przykładowo)
-filtered_data_niski = filtered_data[filtered_data['Segment'] == 'niski'].copy()
 
-# Zliczanie najczęściej występujących słów
-word_counter = Counter()
-for text in filtered_data_niski['Tekst']:
-    words = re.findall(r'\b\w+\b', text.lower())
-    words = [word for word in words if len(word) > 1]
-    word_counter.update(words)
-
-# Pobranie 20 najczęściej występujących słów
-common_words = [word for word, _ in word_counter.most_common(20)]
-
-# Streamlit aplikacja
-st.title("Filtracja danych na podstawie najczęściej występujących słów")
-filtered_niski_recznie = filtered_data_niski.copy()
-
-for word in common_words:
-    if st.button(f"Usuń wiersze zawierające: {word}"):
-        filtered_niski_recznie = filtered_niski_recznie[~filtered_niski_recznie['Tekst'].str.contains(rf'\b{word}\b', case=False, na=False)]
-        st.write(f"Usunięto wiersze zawierające słowo: {word}")
-
-# Wyświetlenie przefiltrowanego DataFrame
-st.write("Przefiltrowane dane:")
-st.dataframe(filtered_niski_recznie)
 
 
 
