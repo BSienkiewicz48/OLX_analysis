@@ -48,6 +48,12 @@ if user_input:
         st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
         st.stop()
 
+
+# Przycisk do czyszczenia session_state
+if st.button('Wygeneruj nowe dane'):
+    st.session_state.clear()
+    st.experimental_rerun()
+
 # Rozdziel URL na części
 url_parts = list(urlparse(base_url))
 query = parse_qs(url_parts[4])
