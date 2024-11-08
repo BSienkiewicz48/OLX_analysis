@@ -52,7 +52,6 @@ if user_input:
 # Przycisk do czyszczenia session_state
 if st.button('Wygeneruj nowe dane'):
     st.session_state.clear()
-    st.experimental_rerun()
 
 # Rozdziel URL na części
 url_parts = list(urlparse(base_url))
