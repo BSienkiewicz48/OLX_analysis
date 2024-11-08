@@ -36,23 +36,26 @@ if not user_input:
     st.stop()
 
 # Sprawdź, czy URL jest z domeny OLX
-if user_input:
-    parsed_url = urlparse(user_input)
-    if parsed_url.netloc.endswith("olx.pl"):
-        if st.button("Kliknij, aby kontynuować"):
-            # Zastąp base_url wartością z input boxa
-            base_url = user_input
-            st.write("Podany URL jest prawidłowy dla domeny OLX.")
-
-            # Rozdziel URL na części
-            url_parts = list(urlparse(base_url))
-            query = parse_qs(url_parts[4])
+if 'base_url' not in st.session_state:
+    if user_input:
+        parsed_url = urlparse(user_input)
+        if parsed_url.netloc.endswith("olx.pl"):
+            if st.button("Kliknij, aby kontynuować"):
+                # Zastąp base_url wartością z input boxa
+                st.session_state['base_url'] = user_input
+                st.write("Podany URL jest prawidłowy dla domeny OLX.")
         else:
-            st.warning("Po wprowadzeniu linku kliknij przycisk powyżej, aby kontynuować.")
+            st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
             st.stop()
     else:
-        st.error("Podany URL nie należy do domeny OLX. Wprowadź poprawny link.")
+        st.warning("Proszę wprowadzić link do wyniku wyszukiwania olx, upewnij się że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami")
         st.stop()
+else:
+    base_url = st.session_state['base_url']
+    
+    # Rozdziel URL na części
+    url_parts = list(urlparse(base_url))
+    query = parse_qs(url_parts[4])
 
 #Poniżej fragment przygotowujący dane:
 
