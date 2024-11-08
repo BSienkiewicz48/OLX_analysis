@@ -149,11 +149,13 @@ def scrapuj_dane():
     df = df[df['Tekst'].apply(lambda x: all(word.lower() in x.lower() for word in search_terms))]
     return df
 
-Links = scrapuj_dane()
+
 
 # Sprawdzenie, czy dane są już w session_state
 if 'Links' not in st.session_state:
     st.session_state.Links = scrapuj_dane()
+
+Links = st.session_state.df
 
 #Poniżej czyszczenie danych:
 # Usuń outliery z kolumny 'Cena'
