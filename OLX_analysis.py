@@ -113,12 +113,12 @@ def scrapuj_dane():
     soup = BeautifulSoup(combined_response, 'html.parser')
 
     # Znalezienie wszystkich rodziców z określoną klasą wspólną dla linku i ceny
-    parents = soup.find_all('div', class_='css-u2ayx9')
+    parents = soup.find_all('div', class_='css-u2ayx9') 
     # Przekształcenie listy linków i cen w DataFrame
     link_data = []
     for parent in parents:
-        link = parent.find('a', class_='css-z3gu2d')
-        price_tag = parent.find('p', class_='css-13afqrm')
+        link = parent.find('a', class_='css-qo0cxu') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
+        price_tag = parent.find('p', class_='css-13afqrm') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
         
         # Sprawdzenie, czy link i cena istnieją
         if link:
