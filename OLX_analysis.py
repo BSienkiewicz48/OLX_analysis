@@ -11,6 +11,7 @@ import seaborn as sns
 import streamlit as st
 from collections import Counter
 import openai
+from io import StringIO
 
 
 api_key = st.secrets["api_key"]
@@ -300,10 +301,108 @@ st.markdown(table_html, unsafe_allow_html=True)
 
 
 
+# Funkcja do scrapowania danych z podanego linku
+def scrape_data(link):
+    response = requests.get(link)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        elements = soup.find_all(class_='css-1o924a9')
+        return [element.get_text(strip=True) for element in elements]
+    else:
+        return []
+
+# Obliczanie outlierów dla segmentu niskiego, odchylających się ceną w dół
+low_segment = filtered_data[filtered_data['Segment'] == 'niski']
+iqr_multiplier = 1.5
+
+while True:
+    q1_low = low_segment['Cena'].quantile(0.25)
+    q3_low = low_segment['Cena'].quantile(0.75)
+    iqr_low = q3_low - q1_low
+    lower_bound_low = q1_low - iqr_multiplier * iqr_low
+
+    # Filtrowanie outlierów odchylających się ceną w dół
+    low_segment_outliers = low_segment[low_segment['Cena'] < lower_bound_low]
+
+    if len(low_segment_outliers) >= 5 or iqr_multiplier <= 0:
+        break
+
+    iqr_multiplier -= 0.1
+
+low_segment_outliers_df = pd.DataFrame(low_segment_outliers)
+
+# Scrapowanie treści ogłoszeń dla outlierów w segmencie niskim
+low_segment_outliers_df['Treść'] = low_segment_outliers_df['Link'].apply(scrape_data)
+
+client = openai.OpenAI(api_key=api_key)
 
 
+low_segment_outliers_df['Ocena_liczbowa_1do5'] = np.nan
 
 
+def extract_search_terms(url_parts):
+    terms = []
+    for part in url_parts:
+        match = re.search(r'q-([a-zA-Z0-9\-]+)', part)
+        if match:
+            # Zamiana "-" na spacje, rozdzielanie i dodanie do listy
+            terms.extend(match.group(1).replace('-', ' ').split())
+    return terms
+
+search_terms = extract_search_terms(url_parts)
+search_item = ' '.join(search_terms)
+
+prompt = f"Mam wyselekcjonowne oferty {search_item} z OLX. Oto najlepsze z nich: {low_segment_outliers_df}, uzupełnij  dane z oceną liczbowa od 1 do 5. Wpisz ocenę stanu {search_item} w skali od 1 do 5 (jeśli przedmiot nie dotyczy wyszukiwanego przedmiotu wpisz 0). pisz tylko indeks i cyfra która jest oceną, odpowiedź w csv."
+
+# Użyj klienta do stworzenia zapytania
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "Only response, short as possible, no dot on end"},
+        {"role": "user", "content": prompt}
+    ]
+)
+
+response_AI = response.choices[0].message.content.strip()
+
+
+# Czyszczenie danych z response_AI
+cleaned_response_AI = response_AI.replace('```', '').strip()
+
+# Przekształcenie response_AI do DataFrame
+response_data = StringIO(cleaned_response_AI)
+response_df = pd.read_csv(response_data, sep=", ", header=None, names=['Index', 'Ocena_liczbowa_1do5'])
+
+# Ustawienie indeksu na kolumnę 'Index'
+response_df.set_index('Index', inplace=True)
+
+# Konwersja indeksu response_df na typ indeksu low_segment_outliers_df
+response_df.index = response_df.index.astype(low_segment_outliers_df.index.dtype)
+
+# Usuń istniejącą kolumnę 'Ocena_liczbowa_1do5' przed dołączeniem nowych danych, jeśli istnieje
+if 'Ocena_liczbowa_1do5' in low_segment_outliers_df.columns:
+	low_segment_outliers_df = low_segment_outliers_df.drop(columns=['Ocena_liczbowa_1do5'])
+
+# Dołączenie ocen do low_segment_outliers_df
+low_segment_outliers_df = low_segment_outliers_df.join(response_df, on=low_segment_outliers_df.index)
+
+best_offerts = low_segment_outliers_df[low_segment_outliers_df['Ocena_liczbowa_1do5'] != 0]
+best_offerts = best_offerts.drop(columns=['Segment'])
+
+prompt = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{best_offerts} , opisz która jest najlepsza i daj tabelkę z Linkiem, ceną i oceną. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta jest najlepsza."
+
+# Użyj klienta do stworzenia zapytania
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "Ma to być informacja doradzająca jaki przedmiot wybrać, pamiętaj że użytkownik ma podaną tabelę ze statystykami, nie trzeba przywoływać ich w tekście"},
+        {"role": "user", "content": prompt}
+    ]
+)
+
+response_AI = response.choices[0].message.content.strip()
+
+st.markdown(response_AI)
 
 
 
