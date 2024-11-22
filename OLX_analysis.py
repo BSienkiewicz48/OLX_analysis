@@ -331,6 +331,8 @@ while True:
 
 low_segment_outliers_df = pd.DataFrame(low_segment_outliers)
 
+st.dataframe(low_segment_outliers_df)
+
 # Scrapowanie treści ogłoszeń dla outlierów w segmencie niskim
 low_segment_outliers_df['Treść'] = low_segment_outliers_df['Link'].apply(scrape_data)
 
