@@ -376,6 +376,8 @@ response_df = pd.read_csv(response_data, sep=", ", header=None, names=['Index', 
 # Ustawienie indeksu na kolumnę 'Index'
 response_df.set_index('Index', inplace=True)
 
+st.mardown(response_df)
+
 # Konwersja indeksu response_df na typ indeksu low_segment_outliers_df
 response_df.index = response_df.index.astype(low_segment_outliers_df.index.dtype)
 
