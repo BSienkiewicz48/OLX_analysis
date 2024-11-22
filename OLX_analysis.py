@@ -401,7 +401,23 @@ best_offerts = best_offerts.drop(columns=['Segment'])
 
 st.dataframe(best_offerts)
 
-prompt1 = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{best_offerts} , opisz która z tych obecych w tabeli jest najlepsza i daj tabelkę z nazwą oferty, ceną, oceną i czy do negocjacji i linkiem takim jak w tabeli, bez tworzenia odnośnika. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta z tabeli jest najlepsza."
+
+
+
+
+# Tworzenie nagłówków
+table_string = " | ".join(best_offerts.columns) + "\n"
+table_string += "-" * len(table_string) + "\n"
+
+# Dodanie wierszy tabeli
+for _, row in best_offerts.iterrows():
+    table_string += " | ".join(map(str, row)) + "\n"
+
+
+
+
+
+prompt1 = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{table_string} , opisz która z tych obecych w tabeli jest najlepsza i daj tabelkę z nazwą oferty, ceną, oceną i czy do negocjacji i linkiem takim jak w tabeli, bez tworzenia odnośnika. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta z tabeli jest najlepsza."
 
 # Użyj klienta do stworzenia zapytania
 response = client.chat.completions.create(
