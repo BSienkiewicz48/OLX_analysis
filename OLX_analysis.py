@@ -372,22 +372,36 @@ cleaned_response_AI = response_AI.replace('```', '').strip()
 
 # Przekształcenie response_AI do DataFrame
 response_data = StringIO(cleaned_response_AI)
-response_df = pd.read_csv(response_data, sep=", ", header=None, names=['Index', 'Ocena_liczbowa_1do5'])
+response_df = pd.read_csv(response_data, sep=",", header=None, names=['Index', 'Ocena_liczbowa_1do5'])
+
+# Konwersja kolumny 'Index' na typ integer
+response_df['Index'] = pd.to_numeric(response_df['Index'], errors='coerce').astype(int)
 
 # Ustawienie indeksu na kolumnę 'Index'
 response_df.set_index('Index', inplace=True)
 
-st.markdown(response_df)
+# Wyświetlenie DataFrame w Streamlit dla celów debugowania
+st.dataframe(response_df)
+
+# Sprawdzenie typu indeksu w low_segment_outliers_df
+st.write(f"Typ indeksu low_segment_outliers_df: {low_segment_outliers_df.index.dtype}")
 
 # Konwersja indeksu response_df na typ indeksu low_segment_outliers_df
-response_df.index = response_df.index.astype(low_segment_outliers_df.index.dtype)
+try:
+    response_df.index = response_df.index.astype(low_segment_outliers_df.index.dtype)
+except ValueError as e:
+    st.error(f"Konwersja indeksu nie powiodła się: {e}")
+    st.stop()
 
 # Usuń istniejącą kolumnę 'Ocena_liczbowa_1do5' przed dołączeniem nowych danych, jeśli istnieje
 if 'Ocena_liczbowa_1do5' in low_segment_outliers_df.columns:
-	low_segment_outliers_df = low_segment_outliers_df.drop(columns=['Ocena_liczbowa_1do5'])
+    low_segment_outliers_df = low_segment_outliers_df.drop(columns=['Ocena_liczbowa_1do5'])
 
 # Dołączenie ocen do low_segment_outliers_df
 low_segment_outliers_df = low_segment_outliers_df.join(response_df, on=low_segment_outliers_df.index)
+
+# Wyświetlenie połączonego DataFrame dla celów debugowania
+st.dataframe(low_segment_outliers_df)
 
 best_offerts = low_segment_outliers_df[low_segment_outliers_df['Ocena_liczbowa_1do5'] != 0]
 best_offerts = best_offerts.drop(columns=['Segment'])
