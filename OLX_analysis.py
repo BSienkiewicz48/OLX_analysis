@@ -331,8 +331,6 @@ while True:
 
 low_segment_outliers_df = pd.DataFrame(low_segment_outliers)
 
-st.dataframe(low_segment_outliers_df)
-
 # Scrapowanie treści ogłoszeń dla outlierów w segmencie niskim
 low_segment_outliers_df['Treść'] = low_segment_outliers_df['Link'].apply(scrape_data)
 
@@ -340,7 +338,6 @@ client = openai.OpenAI(api_key=api_key)
 
 
 low_segment_outliers_df['Ocena_liczbowa_1do5'] = np.nan
-
 
 def extract_search_terms(url_parts):
     terms = []
@@ -354,7 +351,7 @@ def extract_search_terms(url_parts):
 search_terms = extract_search_terms(url_parts)
 search_item = ' '.join(search_terms)
 
-prompt = f"Mam wyselekcjonowne oferty {search_item} z OLX. Oto najlepsze z nich: {low_segment_outliers_df}, uzupełnij  dane z oceną liczbowa od 1 do 5. Wpisz ocenę stanu {search_item} w skali od 1 do 5 (jeśli przedmiot nie dotyczy wyszukiwanego przedmiotu wpisz 0). pisz tylko indeks i cyfra która jest oceną, odpowiedź w csv."
+prompt = f"Mam wyselekcjonowne oferty {search_item} z OLX. Oto najlepsze z nich: {low_segment_outliers_df}, uzupełnij  dane z oceną liczbowa od 1 do 5. Wpisz ocenę stanu {search_item} w skali od 1 do 5 (jeśli przedmiot nie dotyczy wyszukiwanego przedmiotu, lub tylko jest akcesorium do {search_item} to wpisz 0). pisz tylko indeks i cyfra która jest oceną, odpowiedź w csv."
 
 # Użyj klienta do stworzenia zapytania
 response = client.chat.completions.create(
@@ -394,16 +391,8 @@ if 'Ocena_liczbowa_1do5' in low_segment_outliers_df.columns:
 # Dołączenie ocen do low_segment_outliers_df
 low_segment_outliers_df = low_segment_outliers_df.join(response_df, on=low_segment_outliers_df.index)
 
-st.dataframe(low_segment_outliers_df)
-
 best_offerts = low_segment_outliers_df[low_segment_outliers_df['Ocena_liczbowa_1do5'] != 0]
 best_offerts = best_offerts.drop(columns=['Segment'])
-
-st.dataframe(best_offerts)
-
-
-
-
 
 # Tworzenie nagłówków
 table_string = " | ".join(best_offerts.columns) + "\n"
@@ -412,10 +401,6 @@ table_string += "-" * len(table_string) + "\n"
 # Dodanie wierszy tabeli
 for _, row in best_offerts.iterrows():
     table_string += " | ".join(map(str, row)) + "\n"
-
-
-
-
 
 prompt1 = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{table_string} , opisz która z tych obecych w tabeli jest najlepsza i daj tabelkę z nazwą oferty, ceną, oceną i czy do negocjacji i linkiem takim jak w tabeli, bez tworzenia odnośnika. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta z tabeli jest najlepsza."
 
