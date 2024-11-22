@@ -30,7 +30,7 @@ Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kąte
 """)
 
 # Pobierz URL od użytkownika
-user_input = st.text_input("Wprowadź link do strony OLX:")
+user_input = st.text_input("Wprowadź link do wyniku wyszukiwania OLX:")
 
 # Jeśli link nie został podany, pokaż przycisk "Przykładowa analiza"
 if not user_input:
@@ -43,7 +43,7 @@ if not user_input:
 # Sprawdzenie, czy link został ustawiony
 if not user_input:
     st.warning(
-        "Proszę wprowadzić link do wyniku wyszukiwania OLX lub skorzystać z przycisku 'Przykładowa analiza'."
+        "Proszę wprowadzić link do wyniku wyszukiwania OLX lub skorzystać z przycisku 'Przykładowa analiza'. Upewnij się, że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami. Generowanie raportu może potrwać do minuty, dziękuję za cierpliwość 😊"
     )
     st.stop()
     
