@@ -365,6 +365,7 @@ response = client.chat.completions.create(
 
 response_AI = response.choices[0].message.content.strip()
 
+st.markdown(response_AI)
 
 # Czyszczenie danych z response_AI
 cleaned_response_AI = response_AI.replace('```', '').strip()
