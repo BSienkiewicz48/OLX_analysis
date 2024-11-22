@@ -399,7 +399,9 @@ st.dataframe(low_segment_outliers_df)
 best_offerts = low_segment_outliers_df[low_segment_outliers_df['Ocena_liczbowa_1do5'] != 0]
 best_offerts = best_offerts.drop(columns=['Segment'])
 
-prompt = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{best_offerts} , opisz która jest najlepsza i daj tabelkę z Linkiem (pełnym), ceną i oceną i czy do negocjacji. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta jest najlepsza."
+st.dataframe(best_offerts)
+
+prompt = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z OLX. Przeanalizuj krótko tabelę: {summary_stats} , odpowiedz jaki jest najbardziej korzystny zakres w którym można kupić przedmiot. Następnie przeanalizuj tabelę z kilkoma najlepszymi ofertami:{best_offerts} , opisz która jest najlepsza i daj tabelkę z nazwą oferty, ceną, oceną i czy do negocjacji i linkiem takim jak w tabeli, bez tworzenia odnośnika. Tabelka ma być ładnie sformatowana. Zwróć uwagę na kolumnę Treść która zawiera opis z ogłoszenia i Tekst która zawiera tytuł ogłoszenia, porównaj opisy, który opis sugeruje najlepszy przedmiot? może warto na coś zwrócić uwagę? dodatki do zakupu? Dodaj też że przyglądamy się tym ofertom najbardziej korzystnym cenowo dla {search_item}. Na koniec podkreśl i napisz pogrubieniem która oferta jest najlepsza."
 
 # Użyj klienta do stworzenia zapytania
 response = client.chat.completions.create(
