@@ -404,7 +404,6 @@ response = client.chat.completions.create(
         {"role": "system", "content": "Ma to być informacja doradzająca jaki przedmiot wybrać, pamiętaj że użytkownik ma podaną tabelę ze statystykami, nie trzeba przywoływać ich w tekście"},
         {"role": "user", "content": prompt}
     ],
-    stream=True
 )
 
 response_AI = response.choices[0].message.content.strip()
