@@ -29,12 +29,15 @@ st.markdown("""
 Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kątem rozkładu cen. Dzięki aplikacji możesz szybko zorientować się w jakich cenach wystawiany jest dany przedmiot.
 """)
 
-# Pobierz URL od użytkownika
-user_input = st.text_input("Wprowadź link do strony OLX:")
+# Domyślny link
+default_link = "https://www.olx.pl/elektronika/gry-konsole/konsole/q-playstation-5/?search%5Bfilter_enum_state%5D%5B0%5D=used&search%5Bfilter_enum_version%5D%5B0%5D=playstation5"
 
-if not user_input:
-    st.warning("Proszę wprowadzić link do wyniku wyszukiwania olx, upewnij się że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami")
-    st.stop()
+# Zmień link za pomocą zmiennej user_input
+user_input = input("Podaj nowy link (lub naciśnij Enter, aby użyć domyślnego): ").strip()
+if user_input:
+    link_to_use = user_input
+else:
+    link_to_use = default_link
 
 
 
