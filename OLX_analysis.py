@@ -406,7 +406,7 @@ prompt1 = f"Mam tabelę która zawiera statystyki na temat ofer {search_item} z 
 
 # Użyj klienta do stworzenia zapytania
 response = client.chat.completions.create(
-    model="gpt-4o-mini",
+    model="gpt-4o",
     messages=[
         {"role": "system", "content": "Ma to być informacja doradzająca jaki przedmiot wybrać, pamiętaj że użytkownik ma podaną tabelę ze statystykami, nie trzeba przywoływać ich w tekście"},
         {"role": "user", "content": prompt1}
