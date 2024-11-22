@@ -32,6 +32,12 @@ Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kąte
 # Pobierz URL od użytkownika
 user_input = st.text_input("Wprowadź link do strony OLX:")
 
+
+st.markdown("Jeśli chcesz wygenerować przykładową analizę kliknij poniższy przycisk:")
+if st.button("Przykładowa analiza"):
+    user_input = "https://www.olx.pl/elektronika/gry-konsole/konsole/q-playstation-5/?search%5Bfilter_enum_state%5D%5B0%5D=used&search%5Bfilter_enum_version%5D%5B0%5D=playstation5"
+
+
 if not user_input:
     st.warning("Proszę wprowadzić link do wyniku wyszukiwania olx, upewnij się że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami")
     st.stop()
