@@ -26,7 +26,7 @@ st.set_page_config(
 
 st.title("💰 Analiza rozkładu cen dla ofert na portalu ogłoszeniowym OLX")
 st.markdown("""
-Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kątem rozkładu cen. Dzięki aplikacji możesz szybko zorientować się w jakich cenach wystawiany jest dany przedmiot.
+Aplikacja **OLX** umożliwia analizę ofert dostępnych na portalu OLX pod kątem rozkładu cen. Dzięki aplikacji możesz szybko zorientować się w jakich cenach wystawiany jest dany przedmiot oraz znaleźć najkorzystniejsze oferty.
 """)
 
 # Pobierz URL od użytkownika
@@ -43,7 +43,7 @@ if not user_input:
 # Sprawdzenie, czy link został ustawiony
 if not user_input:
     st.warning(
-        "Proszę wprowadzić link do wyniku wyszukiwania OLX lub skorzystać z przycisku 'Przykładowa analiza'. Upewnij się, że przefiltrowałeś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami. Generowanie raportu może potrwać do minuty, dziękuję za cierpliwość 😊"
+        "Proszę wprowadzić link do wyniku wyszukiwania OLX lub skorzystać z przycisku 'Przykładowa analiza'. Upewnij się, że przefiltrowałaś/eś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami. Generowanie raportu może potrwać do minuty, dziękuję za cierpliwość 😊"
     )
     st.stop()
     
