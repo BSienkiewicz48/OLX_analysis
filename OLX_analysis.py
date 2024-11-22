@@ -45,6 +45,7 @@ if not user_input:
     st.warning(
         "Proszę wprowadzić link do wyniku wyszukiwania OLX lub skorzystać z przycisku 'Przykładowa analiza'. Upewnij się, że przefiltrowałaś/eś odpowiednio ogłoszenia - zgodnie z twoimi oczekiwaniami. Generowanie raportu może potrwać do minuty, dziękuję za cierpliwość 😊"
     )
+    st.warning("Raport jest w pełni wygenerowany gdy w górnym prawym roku zniknie napis -Running-")
     st.stop()
     
 
