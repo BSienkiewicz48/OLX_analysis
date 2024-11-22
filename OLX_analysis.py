@@ -365,8 +365,6 @@ response = client.chat.completions.create(
 
 response_AI = response.choices[0].message.content.strip()
 
-st.markdown(response_AI)
-
 # Czyszczenie danych z response_AI
 cleaned_response_AI = response_AI.replace('```', '').strip()
 
@@ -379,12 +377,6 @@ response_df['Index'] = pd.to_numeric(response_df['Index'], errors='coerce').asty
 
 # Ustawienie indeksu na kolumnę 'Index'
 response_df.set_index('Index', inplace=True)
-
-# Wyświetlenie DataFrame w Streamlit dla celów debugowania
-st.dataframe(response_df)
-
-# Sprawdzenie typu indeksu w low_segment_outliers_df
-st.write(f"Typ indeksu low_segment_outliers_df: {low_segment_outliers_df.index.dtype}")
 
 # Konwersja indeksu response_df na typ indeksu low_segment_outliers_df
 try:
@@ -400,9 +392,6 @@ if 'Ocena_liczbowa_1do5' in low_segment_outliers_df.columns:
 # Dołączenie ocen do low_segment_outliers_df
 low_segment_outliers_df = low_segment_outliers_df.join(response_df, on=low_segment_outliers_df.index)
 
-# Wyświetlenie połączonego DataFrame dla celów debugowania
-st.dataframe(low_segment_outliers_df)
-
 best_offerts = low_segment_outliers_df[low_segment_outliers_df['Ocena_liczbowa_1do5'] != 0]
 best_offerts = best_offerts.drop(columns=['Segment'])
 
@@ -414,7 +403,8 @@ response = client.chat.completions.create(
     messages=[
         {"role": "system", "content": "Ma to być informacja doradzająca jaki przedmiot wybrać, pamiętaj że użytkownik ma podaną tabelę ze statystykami, nie trzeba przywoływać ich w tekście"},
         {"role": "user", "content": prompt}
-    ]
+    ],
+    stream=True
 )
 
 response_AI = response.choices[0].message.content.strip()
