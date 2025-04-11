@@ -134,8 +134,8 @@ def scrapuj_dane():
     # Przekształcenie listy linków i cen w DataFrame
     link_data = []
     for parent in parents:
-        link = parent.find('a', class_='css-qo0cxu') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
-        price_tag = parent.find('p', class_='css-6j1qjp') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
+        link = parent.find('a', class_='css-1tqlkj0') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
+        price_tag = parent.find('p', class_='css-uj7mm0') #Jak nie działa to prawdopodobnie zmienili klasy na OLX @@@@@@
         
         # Sprawdzenie, czy link i cena istnieją
         if link:
