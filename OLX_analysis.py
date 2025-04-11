@@ -36,7 +36,7 @@ user_input = st.text_input("Wprowadź link do wyniku wyszukiwania OLX:")
 if not user_input:
     st.markdown("Jeśli chcesz wygenerować przykładową analizę, kliknij poniższy przycisk:")
     # Przyciski są interaktywne tylko, jeśli link jest pusty
-    if st.button("Przykładowa analiza"):
+    if st.button("Przykładowa analiza ofert sprzedaży PlayStation 5"):
         user_input = "https://www.olx.pl/elektronika/gry-konsole/konsole/q-playstation-5/?search%5Bfilter_enum_state%5D%5B0%5D=used&search%5Bfilter_enum_version%5D%5B0%5D=playstation5"
         # Ukryj przycisk po kliknięciu, wychodząc z sekcji `not user_input`
 
