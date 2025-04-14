@@ -99,7 +99,7 @@ def scrapuj_dane():
     soup = BeautifulSoup(response.content, 'html.parser')
 
     # Znalezienie liczby stron z ogłoszeniami
-    total_pages_tag = soup.find_all('a', class_='css-1mi714g')
+    total_pages_tag = soup.find_all('a', class_='css-b6tdh7') #@@@@@@@@@@@@@@TUTAJ MOGLI ZMIENIC CLASSE CAŁKOWITEJ LICZBY STRONY
     if total_pages_tag:
         total_pages = max([int(tag.get_text(strip=True)) for tag in total_pages_tag if tag.get_text(strip=True).isdigit()])
         if total_pages > 15:
