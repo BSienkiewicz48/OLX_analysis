@@ -322,7 +322,7 @@ def scrape_data(link):
     response = requests.get(link)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        elements = soup.find_all(class_='css-1o924a9')
+        elements = soup.find_all(class_='css-19duwlz') #@@@@@@@@@@@@@@TUTAJ MOGLI ZMIENIC CLASSE 
         return [element.get_text(strip=True) for element in elements]
     else:
         return []
